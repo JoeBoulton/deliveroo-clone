@@ -37,7 +37,7 @@ const HomeScreen = () => {
       });
   }, []);
 
-  console.log(featuredCategories);
+  // console.log(featuredCategories);
   // when UI loads
   useLayoutEffect(() => {
     navigation.setOptions({

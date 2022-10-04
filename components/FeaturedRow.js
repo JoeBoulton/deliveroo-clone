@@ -6,6 +6,7 @@ import sanityClient from '../sanity';
 
 const FeaturedRow = ({ id, title, description }) => {
   const [restaurants, setRestaurants] = useState([]);
+
   useEffect(() => {
     {
       sanityClient
@@ -16,7 +17,7 @@ const FeaturedRow = ({ id, title, description }) => {
             ...,
             dishes[]->,
              type->{
-               ...
+               name
              }
           },
         }[0]`,
@@ -28,15 +29,13 @@ const FeaturedRow = ({ id, title, description }) => {
     }
   }, []);
 
-  console.log(restaurants);
-
   return (
     <View>
       <View className="mt-4 flex-row items-center justify-between px-4">
         <Text className="font-bold text-lg">{title}</Text>
+
         <Ionicons name="arrow-forward-outline" color="#00CCBB" size={25} />
       </View>
-
       <Text className="text-xs text-gray-500 px-4">{description}</Text>
 
       <ScrollView
@@ -46,7 +45,8 @@ const FeaturedRow = ({ id, title, description }) => {
         className="pt-4"
       >
         {/* RESTAURANT CARDS */}
-        {restaurants?.map((restaurant) => {
+
+        {restaurants.map((restaurant) => (
           <RestaurantCard
             key={restaurant._id}
             id={restaurant._id}
@@ -59,8 +59,8 @@ const FeaturedRow = ({ id, title, description }) => {
             dishes={restaurant.dishes}
             long={restaurant.long}
             lat={restaurant.lat}
-          />;
-        })}
+          />
+        ))}
       </ScrollView>
     </View>
   );
