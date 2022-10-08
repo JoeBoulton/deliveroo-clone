@@ -3,9 +3,27 @@ import React, { useState } from 'react';
 import currencyFormatter from '../utilis/currencyFormatter';
 import { urlFor } from '../sanity';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  addToBasket,
+  selectBasketItems,
+  selectBasketItemsWithId,
+  removeFromBasket,
+} from '../features/basketSlice';
 
 const DishRow = ({ id, name, description, price, image }) => {
   const [isPressed, setIsPressed] = useState(false);
+  const dispatch = useDispatch();
+  const items = useSelector((state) => selectBasketItemsWithId(state, id));
+
+  const addItemToBasket = () => {
+    dispatch(addToBasket({ id, name, description, price, image }));
+  };
+
+  const removeItemFromBasket = () => {
+    if (!items.length > 0) return;
+    dispatch(removeFromBasket({ id }));
+  };
 
   return (
     <>
@@ -39,7 +57,10 @@ const DishRow = ({ id, name, description, price, image }) => {
       {isPressed && (
         <View className="bg-white px-4">
           <View className="flex-row items-center space-x-2 pb-3">
-            <TouchableOpacity>
+            <TouchableOpacity
+              disabled={!items.length}
+              onPress={removeItemFromBasket}
+            >
               <Ionicons
                 name="remove-circle"
                 size={40}
@@ -49,13 +70,13 @@ const DishRow = ({ id, name, description, price, image }) => {
                   lineHeight: 40,
                   textAlign: 'center',
                 }}
-                color={'#00CCBB'}
+                color={items.length > 0 ? '#00CCBB' : 'gray'}
               />
             </TouchableOpacity>
             <TouchableOpacity>
-              <Text>0</Text>
+              <Text>{items.length}</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={addItemToBasket}>
               <Ionicons
                 name="add-circle"
                 size={40}
