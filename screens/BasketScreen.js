@@ -10,13 +10,20 @@ import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { selectRestaurant } from '../features/restaurantSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectBasketItems } from '../features/basketSlice';
+import {
+  selectBasketItems,
+  removeFromBasket,
+  selectBasketTotal,
+} from '../features/basketSlice';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { urlFor } from '../sanity';
+import currencyFormatter from '../utilis/currencyFormatter';
 
 const BasketScreen = () => {
   const navigation = useNavigation();
   const restaurant = useSelector(selectRestaurant);
   const items = useSelector(selectBasketItems);
+  const basketTotal = useSelector(selectBasketTotal);
   const [groupedItemsInBasket, setGroupedItemsInBaskets] = useState();
   const dispatch = useDispatch();
 
@@ -31,8 +38,6 @@ const BasketScreen = () => {
     }, {});
     setGroupedItemsInBaskets(groupedItems);
   }, [items]);
-
-  console.log(groupedItemsInBasket);
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -68,6 +73,62 @@ const BasketScreen = () => {
           <Text className="flex-1">Deliver in 50-75 min</Text>
           <TouchableOpacity>
             <Text className="text-[#00CCBB]">Change</Text>
+          </TouchableOpacity>
+        </View>
+        <ScrollView className="divide-y divide-gray-200">
+          {groupedItemsInBasket &&
+            Object.entries(groupedItemsInBasket).map(([key, items]) => (
+              <View
+                key={key}
+                className="flex-row items-center space-x-3 bg-white py-2 px-5"
+              >
+                <Text className="text-[#00CCBB]">{items.length} x</Text>
+                {/* below only gets the details of the first item in each item list */}
+                <Image
+                  source={{ uri: urlFor(items[0]?.image).url() }}
+                  className="h-12 w-12 rounded-full"
+                />
+                <Text className="flex-1">{items[0]?.name}</Text>
+
+                <Text className="text-gray-600">
+                  {currencyFormatter(items[0].price)}
+                </Text>
+
+                <TouchableOpacity>
+                  <Text
+                    className="text-[#00CCBB] text-xs"
+                    onPress={() => dispatch(removeFromBasket({ id: key }))}
+                  >
+                    Remove
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+        </ScrollView>
+        <View className="p-5 bg-white mt-5 space-y-4">
+          <View className="flex-row justify-between">
+            <Text className="text-gray-400">Subtotal</Text>
+            <Text className="text-gray-400">
+              {currencyFormatter(basketTotal)}
+            </Text>
+          </View>
+          <View className="flex-row justify-between">
+            <Text className="text-gray-400">Delivery Fee</Text>
+            <Text className="text-gray-400">{currencyFormatter(5.99)}</Text>
+          </View>
+          <View className="flex-row justify-between">
+            <Text>Order Total</Text>
+            <Text className="font-extrabold">
+              {currencyFormatter(basketTotal + 5.99)}
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('PreparingOrderScreen')}
+            className="rounded-lg bg-[#00CCBB] p-4"
+          >
+            <Text className="text-center text-white text-lg font-bold">
+              Place Order
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
